@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CoinDB.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,16 @@ namespace CoinDB
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private async void Form1_Load(object sender, EventArgs e)
+        {
+            var _dbFactory = new DBFactory();
+
+            var bitcoin = await CryptoCurrency.Create("btc", "bitcoin", false, _dbFactory);
+            Console.WriteLine(bitcoin.TotalProfitLoss);
+            var x = "test";
+
         }
     }
 }
