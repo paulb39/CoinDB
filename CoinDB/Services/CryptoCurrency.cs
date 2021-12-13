@@ -18,7 +18,6 @@ namespace CoinDB.Services
         public string Name { get; set; }
         public double TotalQuantity { get; set; }
         public double CurrentPrice { get; set; }
-
         public bool Staked { get; set; }
 
         public double TotalSpent { get; set; }
