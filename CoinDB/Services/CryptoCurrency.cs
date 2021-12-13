@@ -16,6 +16,9 @@ namespace CoinDB.Services
         private readonly DBFactory _dbFactory;
         public string Ticker { get; set; }
         public string Name { get; set; }
+        public double TotalQuantity { get; set; }
+        public double CurrentPrice { get; set; }
+
         public bool Staked { get; set; }
 
         public double TotalSpent { get; set; }
@@ -27,11 +30,13 @@ namespace CoinDB.Services
         public static async Task<CryptoCurrency> Create(string ticker, string name, bool staked, DBFactory dbFactory)
         {
             var cryptoCurrecy = new CryptoCurrency(ticker, name, staked, dbFactory);
+            var currentPrice = await cryptoCurrecy.GetCurrentPrice();
 
             var quantity = cryptoCurrecy.GetAllTransactions().Sum(x => x.Quantity);
-            var currentSell = await cryptoCurrecy.GetCurrentPrice() * quantity;
+            var currentSell = currentPrice * quantity;
             var totalProfitLoss = currentSell - cryptoCurrecy.TotalSpent;
             cryptoCurrecy.TotalProfitLoss = totalProfitLoss;
+            cryptoCurrecy.CurrentPrice = currentPrice;
 
             return cryptoCurrecy;
         }
@@ -46,6 +51,7 @@ namespace CoinDB.Services
             this.Transactions = null;
             SetTotalSpend();
             SetCostAverage();
+            SetQuantity();
         }
 
         public async Task<float> GetCurrentPrice()
@@ -75,7 +81,13 @@ namespace CoinDB.Services
         {
             var quantity = GetAllTransactions().Sum(x => x.Quantity);
             var costAverage = this.TotalSpent / quantity;
-            this.CostAverage = CostAverage;
+            this.CostAverage = costAverage;
+        }
+
+        private void SetQuantity()
+        {
+            var quantity = GetAllTransactions().Sum(x => x.Quantity);
+            this.TotalQuantity = quantity;
         }
 
         private List<Transaction> GetAllTransactions()
