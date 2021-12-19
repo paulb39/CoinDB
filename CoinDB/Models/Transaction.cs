@@ -39,5 +39,8 @@ namespace CoinDB.Models
         [JsonProperty("sell_date")]
         public DateTime SellDate { get; set; }
 
+        //[JsonProperty("profit")]
+        //public double profit { get; set; }
+
     }
 }

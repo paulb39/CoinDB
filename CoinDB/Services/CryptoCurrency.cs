@@ -24,9 +24,21 @@ namespace CoinDB.Services
         public double CostAverage { get; set; }
         public double TotalProfitLoss { get; set; }
 
+        /*
+            APY = (1 + r/n)n – 1
+            APY= (1+0.5/12)^12-1= 5.116 percent
+            r - the interest rate
+            n - the number of times the interest is compounded per year
+            12 for monthly
+        */
+        public double APY { get; set; }
+        public double TotalStakedCoinEarnings { get; set; } //# of coins
+        public double TotalStakedProfit { get; set; }
+
+
         public List<Transaction> Transactions { get; set; }
 
-        public static async Task<CryptoCurrency> Create(string ticker, string name, bool staked, DBFactory dbFactory)
+        public static async Task<CryptoCurrency> Create(string ticker, string name, bool staked, DBFactory dbFactory, double apy = 0d)
         {
             var cryptoCurrecy = new CryptoCurrency(ticker, name, staked, dbFactory);
             var currentPrice = await cryptoCurrecy.GetCurrentPrice();
@@ -36,6 +48,11 @@ namespace CoinDB.Services
             var totalProfitLoss = currentSell - cryptoCurrecy.TotalSpent;
             cryptoCurrecy.TotalProfitLoss = totalProfitLoss;
             cryptoCurrecy.CurrentPrice = currentPrice;
+
+            if (staked)
+            {
+                cryptoCurrecy.SetTotalCoinStakedEarnings(apy, currentPrice);
+            }
 
             return cryptoCurrecy;
         }
@@ -68,6 +85,25 @@ namespace CoinDB.Services
             }
 
             return price;
+        }
+
+        private void SetTotalCoinStakedEarnings(double apy, double currentPrice)
+        {
+            DateTime today = DateTime.Now;
+            double percentage = apy / 100; //20% = 0.2
+            this.APY = Math.Pow((1 + percentage / 12), 12) - 1;
+            double totalStakedCoinEarnings = 0d;
+
+            foreach (var row in GetAllTransactions())
+            {
+                var oneYearEarned = row.Quantity * this.APY;
+                var oneDayEarnings = oneYearEarned / 365;
+                var coinEarnings = oneDayEarnings * (today - row.BuyDate).TotalDays;
+                totalStakedCoinEarnings += coinEarnings;
+            }
+
+            TotalStakedCoinEarnings = totalStakedCoinEarnings;
+            TotalStakedProfit = totalStakedCoinEarnings * currentPrice;
         }
 
         private void SetTotalSpend()
