@@ -1,15 +1,8 @@
 # CoinDB
 
+Extremely quick n dirty app to keep track of cryptocurrencies - total spent / average cost / total profit / staking rewards / etc
+
 Install:
-CREATE TABLE `coins`.`transaction` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `ticker` VARCHAR(255) NOT NULL,
-  `buy_date` DATE NOT NULL,
-  `quantity` DOUBLE NOT NULL,
-  `price` DOUBLE NOT NULL,
-  `total` DOUBLE NOT NULL,
-  `staked` TINYINT NOT NULL DEFAULT 0,
-  `sold` TINYINT NOT NULL DEFAULT 0,
-  `sell_date` DATE NULL,
-  PRIMARY KEY (`id`));
+Run the DBSetup.sql file to set up your DB.
+
+Modify the Form1_Load function to create the coins you own, then add to the coinList list. 
